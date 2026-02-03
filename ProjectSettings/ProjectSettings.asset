@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: Flappy Bird 2
+  productName: Customizable Flappy Bird
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -144,7 +144,8 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 1.0
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -901,16 +902,16 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: FlappyBird2
+  metroPackageName: CustomizableFlappyBird
   metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: Flappy Bird 2
+  metroApplicationDescription: Customizable Flappy Bird
   wsaImages: {}
-  metroTileShortName: Flappy Bird 2
+  metroTileShortName: Customizable Flappy Bird
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0
@@ -982,7 +983,7 @@ PlayerSettings:
   cloudProjectId: 4e86b4cd-aab4-45b7-9e74-258564817520
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Flappy Bird 2
+  projectName: Customizable Flappy Bird
   organizationId: chaple17
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

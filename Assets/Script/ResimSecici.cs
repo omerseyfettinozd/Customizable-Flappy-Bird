@@ -10,8 +10,17 @@ public class ResimSecici : MonoBehaviour
 	public SpriteRenderer kuS_Renderer;
 
 	private Vector2 baslangicBoyutu; // Initial size / İlk baştaki boyut
+	private Vector3 baslangicScale;  // Initial scale / İlk baştaki ölçek
 	private Sprite orjinalSprite; // To store original bird sprite / Orijinal kuşu saklamak için
 	private string KAYIT_ANAHTARI = "SecilenKusResmi"; // PlayerPrefs key / PlayerPrefs anahtarı
+
+	// Original collider data storage
+	// Orijinal collider verilerini saklamak için
+	private Vector2[] orjinalPolyPoints;
+	private Vector2 orjinalBoxSize;
+	private Vector2 orjinalBoxOffset;
+	private float orjinalCircleRadius;
+	private Vector2 orjinalCircleOffset;
 
 	void Start()
 	{
@@ -20,9 +29,22 @@ public class ResimSecici : MonoBehaviour
 			// Save the initial bounds (width and height)
 			// Başlangıçtaki kapladığı alanı (en ve boy) kaydediyoruz
 			baslangicBoyutu = kuS_Renderer.bounds.size;
+			// Save the initial scale
+			// Başlangıçtaki ölçeği (Scale) kaydediyoruz
+			baslangicScale = kuS_Renderer.transform.localScale;
 			// Save the original sprite
 			// Orijinal sprite'ı kaydediyoruz
 			orjinalSprite = kuS_Renderer.sprite;
+
+			// --- SAVE ORIGINAL COLLIDER DATA / ORİJİNAL COLLIDER VERİSİNİ KAYDET ---
+			PolygonCollider2D poly = kuS_Renderer.GetComponent<PolygonCollider2D>();
+			if(poly != null) orjinalPolyPoints = poly.points;
+
+			BoxCollider2D box = kuS_Renderer.GetComponent<BoxCollider2D>();
+			if(box != null) { orjinalBoxSize = box.size; orjinalBoxOffset = box.offset; }
+
+			CircleCollider2D circle = kuS_Renderer.GetComponent<CircleCollider2D>();
+			if(circle != null) { orjinalCircleRadius = circle.radius; orjinalCircleOffset = circle.offset; }
 
 			// --- LOAD SAVED IMAGE / KAYITLI RESMİ YÜKLE ---
 			string kayitliYol = PlayerPrefs.GetString( KAYIT_ANAHTARI, "" );
@@ -91,13 +113,13 @@ public class ResimSecici : MonoBehaviour
 			// Restore original sprite / Orijinal sprite'ı geri yükle
 			kuS_Renderer.sprite = orjinalSprite;
 			
-			// Reset scale (assuming 1,1,1 default)
-			// Boyutu (Scale) sıfırla (1,1,1 varsayılan kabul ediyoruz)
-			kuS_Renderer.transform.localScale = Vector3.one;
+			// Reset scale to initial scale
+			// Boyutu (Scale) başlangıç değerine döndür
+			kuS_Renderer.transform.localScale = baslangicScale;
 
-			// Update collider (return to original state)
-			// Collider'ı da güncelle (eski haline dönsün)
-			ColliderGuclle();
+			// Restore ORIGINAL collider (Do not shrink!)
+			// ORİJİNAL collider'ı geri yükle (Küçültme yapma!)
+			ColliderGuclle(false);
 		}
 	}
 
@@ -148,44 +170,88 @@ public class ResimSecici : MonoBehaviour
 			kuS_Renderer.transform.localScale = new Vector3( genislikOrani, yukseklikOrani, 1f );
 
 			// --- UPDATE COLLIDER / COLLIDER GÜNCELLEME ---
-			// Since sprite changed and scale reduced, we must update collider to new sprite's
-			// original dimensions so it stays normal size when multiplied by scale.
-			// Sprite değiştiği ve scale küçüldüğü için collider'ı da yeni sprite'ın
-			// orjinal boyutlarına (büyük haline) güncellemeliyiz ki
-			// scale ile çarpılınca normal boyutta kalsın.
-			ColliderGuclle();
+			// Update to new custom shape and SHRINK IT
+			// Yeni özel şekle güncelle ve KÜÇÜLT
+			ColliderGuclle(true);
 		}
 	}
 
-	private void ColliderGuclle()
+	private void ColliderGuclle(bool isCustom)
 	{
-		// 1. If PolygonCollider2D exists (safest, gets exact shape)
-		// 1. PolygonCollider2D varsa (en garantisi bu, şekli tam alır)
+		// Shrink by 75% for easier gameplay ONLY IF CUSTOM
+		// SADECE ÖZEL RESİMSE %75 küçült
+		float toleranceScale = isCustom ? 0.75f : 1.0f;
+
+		// 1. PolygonCollider2D
 		PolygonCollider2D polyCol = kuS_Renderer.GetComponent<PolygonCollider2D>();
 		if (polyCol != null)
 		{
-			Destroy(polyCol); // Delete old / Eskisini sil
-			kuS_Renderer.gameObject.AddComponent<PolygonCollider2D>(); // Add new (Auto shape) / Yenisini ekle (Otomatik şekil alır)
-			return; // Exit / Çıksın
+			if(isCustom)
+			{
+				Destroy(polyCol); 
+				polyCol = kuS_Renderer.gameObject.AddComponent<PolygonCollider2D>(); // Auto shape / Otomatik şekil
+				
+				// Shrink / Küçült
+				Vector2[] points = polyCol.points;
+				for(int i = 0; i < points.Length; i++) points[i] *= toleranceScale;
+				polyCol.points = points;
+			}
+			else
+			{
+				// RESET TO ORIGINAL / ORİJİNALE DÖN
+				// If we have saved points, restore them
+				// Kayıtlı noktalar varsa onları geri yükle
+				if(orjinalPolyPoints != null)
+				{
+					// We might need to recreate it to clear any weird auto-shapes
+					// Garip otomatik şekilleri temizlemek için yeniden oluşturabiliriz
+					Destroy(polyCol);
+					polyCol = kuS_Renderer.gameObject.AddComponent<PolygonCollider2D>();
+					polyCol.points = orjinalPolyPoints;
+				}
+			}
+			return; 
 		}
 
-		// 2. If BoxCollider2D exists / 2. BoxCollider2D varsa
+		// 2. BoxCollider2D
 		BoxCollider2D boxCol = kuS_Renderer.GetComponent<BoxCollider2D>();
 		if (boxCol != null)
 		{
-			boxCol.size = kuS_Renderer.sprite.bounds.size;
-			boxCol.offset = kuS_Renderer.sprite.bounds.center;
+			if(isCustom)
+			{
+				boxCol.size = kuS_Renderer.sprite.bounds.size * toleranceScale;
+				boxCol.offset = kuS_Renderer.sprite.bounds.center;
+			}
+			else
+			{
+				// RESTORE ORIGINAL / ORİJİNALİ GERİ YÜKLE
+				if(orjinalBoxSize != Vector2.zero)
+				{
+					boxCol.size = orjinalBoxSize;
+					boxCol.offset = orjinalBoxOffset;
+				}
+			}
 		}
 
-		// 3. If CircleCollider2D exists / 3. CircleCollider2D varsa
+		// 3. CircleCollider2D
 		CircleCollider2D circleCol = kuS_Renderer.GetComponent<CircleCollider2D>();
 		if (circleCol != null)
 		{
-			// Set radius to half of the largest dimension
-			// En büyük kenarın yarısını yarıçap yapalım
-			float maxBoyut = Mathf.Max(kuS_Renderer.sprite.bounds.size.x, kuS_Renderer.sprite.bounds.size.y);
-			circleCol.radius = maxBoyut * 0.5f;
-			circleCol.offset = kuS_Renderer.sprite.bounds.center;
+			if(isCustom)
+			{
+				float maxBoyut = Mathf.Max(kuS_Renderer.sprite.bounds.size.x, kuS_Renderer.sprite.bounds.size.y);
+				circleCol.radius = (maxBoyut * 0.5f) * toleranceScale;
+				circleCol.offset = kuS_Renderer.sprite.bounds.center;
+			}
+			else
+			{
+				// RESTORE ORIGINAL / ORİJİNALİ GERİ YÜKLE
+				if(orjinalCircleRadius > 0)
+				{
+					circleCol.radius = orjinalCircleRadius;
+					circleCol.offset = orjinalCircleOffset;
+				}
+			}
 		}
 	}
 }

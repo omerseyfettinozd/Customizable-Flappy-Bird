@@ -8,11 +8,11 @@ public class LeaderboardManager : MonoBehaviour
     public static LeaderboardManager Instance;
 
     // Dreamlo Private Code (WRITE ACCESS / YAZMA İZNİ)
-    private const string privateCode = "write private code here";
+    private const string privateCode = "Enter your private code here.";
     // Dreamlo Public Code (READ ACCESS / OKUMA İZNİ)
     // Since we have private code, we can read too. 
     // Eğer private code varsa okuma da yapabiliriz, public code şart değil ama güvenlik için iyidir.
-    private const string publicCode = "write public code here"; // Derived or empty / URL'den tahmin edilen veya boş bırakılan
+    private const string publicCode = "Enter your public code here."; // Derived or empty / URL'den tahmin edilen veya boş bırakılan
     // Note: Public code is usually short in "Public Code" on website.
     // However, can also read with Private code: http://dreamlo.com/lb/PRIVATE_CODE/json
     // Not: Normalde Public code web sitesinde "Public Code" diye kısa yazar. 
