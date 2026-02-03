@@ -77,4 +77,24 @@ Ana scriptler `Assets/Script` klasöründe bulunur:
 
 ---
 
+## Leaderboard Setup / Liderlik Tablosu Kurulumu
+
+**[English]**
+This project uses **Dreamlo** for the leaderboard system. If you want to use your own leaderboard:
+1. Go to [Dreamlo.com](http://dreamlo.com).
+2. Click "Get it Now" to generate a free leaderboard URL.
+3. Open `Assets/Script/LeaderboardManager.cs`.
+4. Paste your **Private Code** into the `privateCode` variable.
+5. Paste your **Public Code** into the `publicCode` variable.
+
+**[Türkçe]**
+Bu proje liderlik sistemi için **Dreamlo** kullanır. Kendi liderlik tablonuzu kullanmak istiyorsanız:
+1. [Dreamlo.com](http://dreamlo.com) adresine gidin.
+2. "Get it Now" butonuna basarak ücretsiz bir link oluşturun.
+3. `Assets/Script/LeaderboardManager.cs` dosyasını açın.
+4. **Private Code** kısmını `privateCode` değişkenine yapıştırın.
+5. **Public Code** kısmını `publicCode` değişkenine yapıştırın.
+
+---
+
 *Developed by Ömer Seyfettin*
